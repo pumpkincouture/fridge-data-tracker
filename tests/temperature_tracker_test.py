@@ -1,4 +1,5 @@
 from temperature_tracker import TemperatureTracker
+from temperature_measurement import TemperatureMeasurement
 import unittest
 import json
 import os.path
@@ -13,19 +14,31 @@ class TemperatureTrackerTestCase(unittest.TestCase):
         self.temperatures = ast.literal_eval(open(temps).read())
         self.temps_and_time = ast.literal_eval(open(times_and_temps).read())
 
-    def test_find_out_of_range_temperatures(self):
-        original_data = [{"dId":"358072045332183","tmps":[{"sId":"A","time":1461732679,"typ":0,"tmp":8.9},{"sId":"B","time":1461732679,"typ":2,"tmp":8.3},{"sId":"C","time":1461732679,"typ":0,"tmp":23.2},{"sId":"D","time":1461732679,"typ":0,"tmp":23.1},{"sId":"E","time":1461732679,"typ":0,"tmp":23.5} ]}]
-        expected_data = [[{"time": 1461732679, "temperature": 8.9},{"time":1461732679,"temperature":8.3},{"time":1461732679,"temperature":23.2},{"time":1461732679,"temperature":23.1},{"time":1461732679,"temperature":23.5}]]
+    #def test_find_out_of_range_temperatures(self):
+        #call = self.temperature_tracker.find_temperatures_excursion_event(self.temperatures)
 
-        call = self.temperature_tracker.find_temperatures_excursion_event(self.temperatures)
+        #self.assertEqual(call, self.temps_and_time)
 
-        self.assertEqual(call, self.temps_and_time)
+    def test_find_start_and_end_excursion_event(self):
+        call = self.temperature_tracker.find_all_events(self.__mock_temperature_measurements(), [])
 
-    def test_find_time_duration_of_excursion_event(self):
-        input_data = [[{"time": 1461732679, "temperature": 8.9},{"time":1461732679,"temperature":8.3},{"time":1461732679,"temperature":23.2},{"time":1461732679,"temperature":23.1},{"time":1461732679,"temperature":23.5},{"time":1461732679,"temperature":23.5}]]
+        events = self.__mock_excursion_events
 
-        call = self.temperature_tracker.find_duration_of_event(input_data)
+        self.assertEqual(call, events)
 
+    def __mock_temperature_measurements(self):
+      temperature_measurement1 = TemperatureMeasurement('A', 1461723079, 'hot', 9, True)
+      temperature_measurement2 = TemperatureMeasurement('A', 1461723679, 'hot', 10, True)
+      temperature_measurement3 = TemperatureMeasurement('A', 1461724279, 'hot', 13, True)
+      temperature_measurement4 = TemperatureMeasurement('A', 1461724879, 'na', 7.5, False)
+
+      measurements = [ temperature_measurement1, temperature_measurement2, temperature_measurement3, temperature_measurement4 ]
+      return measurements
+
+    def __mock_excursion_events(self):
+      excursion_1 = TemperatureExcursionEvent(1461723079, 1461724879, 1800, 'hot', 13)
+      excursions = [ excursion_1 ]
+      return excursions
 
 
 if __name__ == '__main__':
